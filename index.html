@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Runsheet</title>
+<style>
+  :root{
+    --paper:#FAF8F3;
+    --ink:#1E2A2E;
+    --ink-soft:#5B6B6E;
+    --line:#DCD6C6;
+    --accent:#D2542A;
+    --accent-soft:#F2DCCB;
+    --card:#FFFFFF;
+    --green:#3E6E5B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--paper);
+    position:relative;
+  }
+  header{
+    padding:22px 20px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  header h1{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  header p{
+    margin:4px 0 0;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  nav{
+    display:flex;
+    padding:0 20px;
+    border-bottom:1px solid var(--line);
+    background:var(--paper);
+  }
+  nav button{
+    flex:1;
+    background:none;
+    border:none;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink-soft);
+    padding:13px 0;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    position:relative;
+  }
+  nav button.active{
+    color:var(--ink);
+    border-bottom:2px solid var(--accent);
+  }
+  nav button .count{
+    display:inline-block;
+    margin-left:5px;
+    font-size:11px;
+    color:var(--accent);
+    font-weight:700;
+  }
+  main{
+    flex:1;
+    padding:18px 20px 140px;
+    overflow-y:auto;
+  }
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+  }
+  .empty .glyph{
+    font-size:34px;
+    margin-bottom:10px;
+    display:block;
+  }
+  .empty h3{
+    margin:0 0 6px;
+    color:var(--ink);
+    font-size:16px;
+  }
+  .empty p{
+    margin:0;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .capture-zone{
+    border:1.5px dashed var(--line);
+    border-radius:14px;
+    padding:28px 18px;
+    text-align:center;
+    margin-bottom:20px;
+  }
+  .capture-zone p{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:10px 0 16px;
+    line-height:1.5;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    justify-content:center;
+    border:none;
+    border-radius:10px;
+    padding:12px 20px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:var(--paper);
+    width:100%;
+  }
+  .btn-outline{
+    background:transparent;
+    color:var(--ink);
+    border:1.3px solid var(--line);
+  }
+  .row-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 14px 14px 12px;
+    margin-bottom:10px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .row-card.checked{
+    border-color:var(--accent);
+    background:linear-gradient(0deg,var(--accent-soft) 0%, #FFFFFF 100%);
+  }
+  .checkbox{
+    width:22px;
+    height:22px;
+    border-radius:6px;
+    border:1.6px solid var(--line);
+    flex:0 0 22px;
+    margin-top:2px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    background:#fff;
+    transition:background .12s,border-color .12s;
+  }
+  .checkbox.on{
+    background:var(--accent);
+    border-color:var(--accent);
+  }
+  .checkbox svg{width:13px;height:13px;display:none;}
+  .checkbox.on svg{display:block;}
+  .row-body{flex:1;min-width:0;}
+  .row-feature{
+    font-size:15px;
+    font-weight:700;
+    margin:0 0 4px;
+    line-height:1.3;
+  }
+  .row-meta{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 10px;
+    margin:0;
+  }
+  .row-meta span b{
+    color:var(--ink);
+    font-weight:600;
+  }
+  .edit-btn{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:0;
+    margin-top:6px;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .section-label{
+    font-size:11.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin:0 0 10px;
+  }
+  footer{
+    position:fixed;
+    bottom:0;
+    left:0;right:0;
+    max-width:480px;
+    margin:0 auto;
+    padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(0deg, var(--paper) 60%, rgba(250,248,243,0));
+  }
+  footer .save-bar{
+    background:var(--paper);
+    padding-top:10px;
+  }
+  .save-count{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+  }
+  .status{
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:30px 0;
+  }
+  .status .spinner{
+    width:22px;height:22px;
+    border:2.5px solid var(--line);
+    border-top-color:var(--accent);
+    border-radius:50%;
+    margin:0 auto 10px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  input[type=file]{display:none;}
+  .toast{
+    position:fixed;
+    bottom:110px;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--ink);
+    color:var(--paper);
+    padding:10px 18px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(-6px);
+  }
+  .field-input{
+    width:100%;
+    font-family:inherit;
+    font-size:13px;
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin-top:4px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .field-row{margin-bottom:6px;}
+  .field-row label{font-size:11px;color:var(--ink-soft);font-weight:600;}
+  .err{
+    background:#FBE9E4;
+    color:#9A3412;
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    margin-bottom:16px;
+    line-height:1.4;
+  }
+  .clear-link{
+    display:block;
+    text-align:center;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    background:none;
+    border:none;
+    margin:18px auto 0;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const { useState, useEffect, useRef } = React || {};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+function CheckIcon(){
+  return (
+    <svg viewBox="0 0 16 16" fill="none">
+      <path d="M3 8.5L6.2 11.7L13 4.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+async function extractRows(base64, mediaType){
+  const prompt = `This image contains a table or schedule with columns roughly corresponding to Feature (or Event/Item/Session name), Start (time), End (time), and Venue (or Location/Room). Read every row of the table.
+
+Respond with ONLY a JSON array, no preamble, no markdown fences, no explanation. Each element:
+{"feature": string, "start": string, "end": string, "venue": string}
+
+Use the exact text as it appears for each field. If a field is missing or unreadable for a row, use an empty string for that field. If the image contains no readable table, respond with an empty JSON array: []`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2000,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+            { type: "text", text: prompt }
+          ]
+        }
+      ]
+    })
+  });
+
+  if(!response.ok){
+    throw new Error("The scan request failed. Try again.");
+  }
+
+  const data = await response.json();
+  const text = (data.content || []).map(b => b.text || "").join("\n");
+  const clean = text.replace(/```json/g,"").replace(/```/g,"").trim();
+  let parsed;
+  try{
+    parsed = JSON.parse(clean);
+  }catch(e){
+    throw new Error("Couldn't read the table in that photo. Try a clearer, well-lit shot.");
+  }
+  if(!Array.isArray(parsed)) throw new Error("Couldn't read the table in that photo. Try a clearer, well-lit shot.");
+  return parsed.map(r => ({
+    id: uid(),
+    feature: (r.feature || "").trim(),
+    start: (r.start || "").trim(),
+    end: (r.end || "").trim(),
+    venue: (r.venue || "").trim(),
+    checked: true
+  }));
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = () => reject(new Error("Couldn't read that file."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function RowCard({row, onToggle, onEdit}){
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(row);
+
+  if(editing){
+    return (
+      <div className="row-card checked">
+        <div className="row-body" style={{width:"100%"}}>
+          {["feature","start","end","venue"].map(f => (
+            <div className="field-row" key={f}>
+              <label>{f === "feature" ? "Feature" : f === "start" ? "Start" : f === "end" ? "End" : "Venue"}</label>
+              <input className="field-input" value={draft[f]}
+                onChange={e => setDraft({...draft, [f]: e.target.value})} />
+            </div>
+          ))}
+          <button className="btn btn-outline" style={{marginTop:6, padding:"7px 14px", fontSize:12}}
+            onClick={() => { onEdit(draft); setEditing(false); }}>
+            Done editing
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={"row-card" + (row.checked ? " checked" : "")}>
+      <div className={"checkbox" + (row.checked ? " on" : "")} onClick={() => onToggle(row.id)}>
+        <CheckIcon/>
+      </div>
+      <div className="row-body" onClick={() => onToggle(row.id)}>
+        <p className="row-feature">{row.feature || "(untitled)"}</p>
+        <p className="row-meta">
+          {row.start && <span><b>Start</b> {row.start}</span>}
+          {row.end && <span><b>End</b> {row.end}</span>}
+          {row.venue && <span><b>Venue</b> {row.venue}</span>}
+        </p>
+        <button className="edit-btn" onClick={(e) => { e.stopPropagation(); setEditing(true); }}>Edit</button>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [tab, setTab] = useState("scan");
+  const [scanned, setScanned] = useState([]);
+  const [saved, setSaved] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [toast, setToast] = useState("");
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    (async () => {
+      try{
+        const res = await window.storage.get("saved-rows", false);
+        if(res && res.value) setSaved(JSON.parse(res.value));
+      }catch(e){ /* nothing saved yet */ }
+    })();
+  }, []);
+
+  function showToast(msg){
+    setToast(msg);
+    setTimeout(() => setToast(""), 1800);
+  }
+
+  async function persistSaved(next){
+    setSaved(next);
+    try{
+      await window.storage.set("saved-rows", JSON.stringify(next), false);
+    }catch(e){ /* storage best-effort */ }
+  }
+
+  async function handleFile(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    setError(null);
+    setLoading(true);
+    setScanned([]);
+    try{
+      const base64 = await fileToBase64(file);
+      const mediaType = file.type || "image/jpeg";
+      const rows = await extractRows(base64, mediaType);
+      if(rows.length === 0){
+        setError("No table rows were found in that photo. Try a clearer, closer shot of the table.");
+      }
+      setScanned(rows);
+    }catch(err){
+      setError(err.message || "Something went wrong reading that photo.");
+    }finally{
+      setLoading(false);
+      e.target.value = "";
+    }
+  }
+
+  function toggleRow(id){
+    setScanned(scanned.map(r => r.id === id ? {...r, checked: !r.checked} : r));
+  }
+
+  function editRow(updated){
+    setScanned(scanned.map(r => r.id === updated.id ? updated : r));
+  }
+
+  function handleSave(){
+    const checkedRows = scanned.filter(r => r.checked);
+    if(checkedRows.length === 0) return;
+    const next = [...saved, ...checkedRows.map(r => ({...r, id: uid()}))];
+    persistSaved(next);
+    setScanned(scanned.filter(r => !r.checked));
+    showToast(`Saved ${checkedRows.length} row${checkedRows.length > 1 ? "s" : ""}`);
+    setTab("saved");
+  }
+
+  function removeSaved(id){
+    persistSaved(saved.filter(r => r.id !== id));
+  }
+
+  function clearScan(){
+    setScanned([]);
+    setError(null);
+  }
+
+  const checkedCount = scanned.filter(r => r.checked).length;
+
+  return (
+    <React.Fragment>
+      <header>
+        <h1>Runsheet</h1>
+        <p>Scan a schedule photo, check what's confirmed, save it.</p>
+      </header>
+
+      <nav>
+        <button className={tab === "scan" ? "active" : ""} onClick={() => setTab("scan")}>
+          Scan
+        </button>
+        <button className={tab === "saved" ? "active" : ""} onClick={() => setTab("saved")}>
+          Saved {saved.length > 0 && <span className="count">{saved.length}</span>}
+        </button>
+      </nav>
+
+      <main>
+        {tab === "scan" && (
+          <React.Fragment>
+            <div className="capture-zone">
+              <span className="glyph">📷</span>
+              <p>Take or choose a photo of your Excel table.<br/>Feature, Start, End and Venue columns will be pulled out automatically.</p>
+              <button className="btn btn-primary" style={{width:"auto", padding:"12px 26px"}}
+                onClick={() => fileInputRef.current.click()} disabled={loading}>
+                {loading ? "Reading photo…" : "Add photo"}
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFile} />
+            </div>
+
+            {loading && (
+              <div className="status">
+                <div className="spinner"></div>
+                Reading the table from your photo…
+              </div>
+            )}
+
+            {error && !loading && <div className="err">{error}</div>}
+
+            {!loading && scanned.length > 0 && (
+              <React.Fragment>
+                <p className="section-label">Found {scanned.length} row{scanned.length > 1 ? "s" : ""} — uncheck any to leave out</p>
+                {scanned.map(row => (
+                  <RowCard key={row.id} row={row} onToggle={toggleRow} onEdit={editRow} />
+                ))}
+                <button className="clear-link" onClick={clearScan}>Clear this scan</button>
+              </React.Fragment>
+            )}
+
+            {!loading && !error && scanned.length === 0 && (
+              <div className="empty">
+                <span className="glyph">🗒️</span>
+                <h3>No photo scanned yet</h3>
+                <p>Tap "Add photo" above to get started.</p>
+              </div>
+            )}
+          </React.Fragment>
+        )}
+
+        {tab === "saved" && (
+          <React.Fragment>
+            {saved.length === 0 ? (
+              <div className="empty">
+                <span className="glyph">✅</span>
+                <h3>Nothing saved yet</h3>
+                <p>Rows you check and save from the Scan tab will land here.</p>
+              </div>
+            ) : (
+              <React.Fragment>
+                <p className="section-label">{saved.length} saved row{saved.length > 1 ? "s" : ""}</p>
+                {saved.map(row => (
+                  <div className="row-card checked" key={row.id}>
+                    <div className="checkbox on" onClick={() => removeSaved(row.id)}><CheckIcon/></div>
+                    <div className="row-body">
+                      <p className="row-feature">{row.feature || "(untitled)"}</p>
+                      <p className="row-meta">
+                        {row.start && <span><b>Start</b> {row.start}</span>}
+                        {row.end && <span><b>End</b> {row.end}</span>}
+                        {row.venue && <span><b>Venue</b> {row.venue}</span>}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                <p style={{textAlign:"center", fontSize:12, color:"var(--ink-soft)"}}>Tap a checkmark to remove that row</p>
+              </React.Fragment>
+            )}
+          </React.Fragment>
+        )}
+      </main>
+
+      {tab === "scan" && scanned.length > 0 && !loading && (
+        <footer>
+          <div className="save-bar">
+            <p className="save-count">{checkedCount} of {scanned.length} row{scanned.length > 1 ? "s" : ""} checked</p>
+            <button className="btn btn-primary" onClick={handleSave} disabled={checkedCount === 0}>
+              Save {checkedCount > 0 ? `(${checkedCount})` : ""}
+            </button>
+          </div>
+        </footer>
+      )}
+
+      <div className={"toast" + (toast ? " show" : "")}>{toast}</div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+</script>
+</body>
+</html>
